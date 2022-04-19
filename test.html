@@ -323,6 +323,24 @@
                 </div>
             </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             <!-- Attributes end -->
             <!-- Attack -->
 
@@ -334,202 +352,129 @@
             <div id="attack" class="card-block collapse in group">
                 <div id="attack_data">
                     <div class="pos-left">
-                        Attack
-                        <select id="moveset" ng-model="move" ng-change="updateAttack()" ng-style="moveset_style">
-                            <option ng-selected="$first" ng:repeat="move in moveset" ng-attr-value="{{move.id}}">
-                                {{move.name}}
-                            </option>
-                        </select>
-                        <span id="smash4-data" ng-hide="moveset_info == null">{{moveset_info}}</span>
-                        <br />
-                        <a class="select-link" href="http://kuroganehammer.com/Ultimate/{{encodedAttackerValue}}"
-                           target="_blank" rel="noopener">{{attackerName}}&nbsp;frame data</a>
-                        <br />
-                        <a class="select-link" href="https://rubendal.github.io/ssbu/#/Character/{{dataViewerAttackerValue}}"
-                           target="_blank" rel="noopener">{{attackerName}}&nbsp;scripts</a>
-                        <br />
-                        <div ng-style="counterStyle">
-                            Countered Damage
-                            <input name="countered_base_damage" type="number" min="0" max="999" step="0.1"
-                                   ng-model="counteredDamage" ng-change="counterDamage()" />
-                            <span>{{"x" + counterMult}}</span>
-                        </div>
                         <table>
                             <tr>
-                                <td>Damage</td>
-                                <td>
-                                    <input name="base_damage" type="number" min="0" max="999" step="0.1"
-                                           ng-model="baseDamage" ng-change="updateAttackData()" />
-                                </td>
+                                <td>Attacker</td>
                             </tr>
-                            <tr ng-style="is_smash_visibility">
-                                <td>{{charging_frames_type}}</td>
+                            <tr>
+                                <td>Base Damage multiplier</td>
                                 <td>
-                                    <input name="charge" type="number" min="{{charge_min}}" max="{{charge_max}}"
-                                           step="1" ng-model="smashCharge" ng-change="updateCharge()" />
+                                    <input name="attacker_basedamage" type="number" min="0" max="100" step="0.01"
+                                           ng-model="Calculator.Attacker.Modifier.BaseDamageMultiplier" ng-change="Calculator.Update()" />x
                                 </td>
                             </tr>
                             <tr>
-                                <td>Hitlag</td>
+                                <td>Damage dealt</td>
                                 <td>
-                                    <input name="hitlag_multiplier" type="number" min="0" max="6" step="0.05"
-                                           ng-model="hitlag" ng-change="update()" />
+                                    <input name="attacker_damage_dealt" type="number" min="0" max="100" step="0.01"
+                                           ng-model="Calculator.Attacker.Modifier.DamageDealtMultiplier" ng-change="Calculator.Update()" />x
                                 </td>
                             </tr>
                             <tr>
-                                <td>Angle</td>
+                                <td>KB dealt</td>
                                 <td>
-                                    <input name="angle" type="number" min="0" max="367" step="1" ng-model="angle"
-                                           ng-change="updateAttackData()" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>BKB</td>
-                                <td>
-                                    <input name="bkb" type="number" min="0" max="999" step="1" ng-model="bkb"
-                                           ng-change="updateAttackData()" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>FKB</td>
-                                <td>
-                                    <input name="wbkb" type="number" min="0" max="999" step="1" ng-model="wbkb"
-                                           ng-change="updateAttackData()" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>KBG</td>
-                                <td>
-                                    <input name="kbg" type="number" min="0" max="999" step="1" ng-model="kbg"
-                                           ng-change="updateAttackData()" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Shield Damage</td>
-                                <td>
-                                    <input name="shield_damage" type="number" min="-50" max="50" step="1"
-                                           ng-model="shieldDamage" ng-change="updateAttackData()" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Shield stun</td>
-                                <td>
-                                    <input name="shieldstun_mult" type="number" min="0" max="10" step="0.01"
-                                           ng-model="shieldstunMult" ng-change="updateAttackData()" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Add. Hitstun</td>
-                                <td>
-                                    <input name="add_hitstun" type="number" min="-100" max="100" step="1"
-                                           ng-model="addHitstun" ng-change="updateAttackData()" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Effect</td>
-                                <td>
-                                    <select id="effect" ng-model="effect" ng-change="updateEffect()">
-                                        <option ng:repeat="e in effects" ng-attr-value="{{e.name}}">{{e.name}}</option>
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Hit frame</td>
-                                <td>
-                                    <input name="hit_frame" type="number" min="0" max="1000" step="1"
-                                           ng-model="hit_frame" ng-change="update()" />
-                                </td>
-                                <td>
-                                    <span>
-                                        <button ng-style="prev_hf" ng-click="prev_hit_frame()">&lt;</button>
-                                        <button ng-style="next_hf" ng-click="next_hit_frame()">&gt;</button>
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>{{use_landing_lag == "no" ? "FAF" : "Landing frame"}}</td>
-                                <td>
-                                    <input name="faf" type="number" min="0" max="1000" step="1" ng-model="faf"
-                                           ng-change="update()" />
+                                    <input name="attacker_kb_dealt" type="number" min="0" max="100" step="0.01"
+                                           ng-model="Calculator.Attacker.Modifier.KBDealtMultiplier" ng-change="Calculator.Update()" />x
                                 </td>
                             </tr>
                         </table>
-                        <span ng-style="is_aerial">
-                            <input type="radio" ng-model="use_landing_lag" value="no" ng-change="update_faf()" /> Use
-                            move FAF
-                            <br />
-                            <input type="radio" ng-model="use_landing_lag" value="yes" ng-change="update_faf()" /> Use
-                            move landing lag
-                            <input name="landing_lag" type="number" ng-model="landing_lag" min="1" max="100" step="1"
-                                   ng-change="update_landing_lag()" />
-                            <br />
-                            <input type="radio" ng-model="use_landing_lag" value="autocancel"
-                                   ng-change="update_faf()" /> Use move autocancel
-                        </span>
-                        <div class="staleness">
-                            Staleness Queue
-                            <table>
-                                <tr>
-                                    <td ng-repeat="n in stale track by $index" class="queue-td">
-                                        <input class="queue-cb" name="stale{{$index}}" data-value="{{$index+1}}"
-                                               type="checkbox" ng-model="stale[$index]" ng-change="update()" />
-                                    </td>
-                                </tr>
-                            </table>
-                            Hit shield
-                            <table>
-                                <tr>
-                                    <td ng-repeat="n in stale track by $index" class="queue-td">
-                                        <input class="queue-cb" name="shieldStale{{$index}}" data-value="{{$index+1}}"
-                                               type="checkbox" ng-model="shieldStale[$index]" ng-change="update()" />
-                                    </td>
-                                </tr>
-                            </table>
-                            <br />
-                            <button ng-click="updateStaleness('1')">Full queue</button>
-                            <button ng-click="updateStaleness('0')">Empty queue</button>
-                        </div>
+
                     </div>
-                    <div class="pos-right attack-options">
-                        <input type="checkbox" ng-model="is_smash" ng-change="charging()" />
-                        {{charge_special ? "Chargeable" : "Smash attack"}}
-                        <br />
-                        <span ng-style="is_smash_visibility">
-                            <span ng-style="is_megaman">
-                                <input type="checkbox" ng-model="megaman_fsmash" ng-change="update()" /> Fsmash
-                                <br />
-                            </span>
-                            <span ng-style="is_bayonetta">
-                                <input type="checkbox" ng-model="witch_time_charge" ng-change="update()" /> Witch Time
-                                active
-                                <br />
-                            </span>
-                        </span>
-                        <input type="checkbox" ng-model="is_aerial_move" ng-change="updateAttackData()" /> Aerial move
-                        <br />
-                        <span ng-style="is_aerial">
-                            <input type="checkbox" ng-model="shorthop_aerial" ng-change="update()" /> Short hop aerial
-                            <br />
-                        </span>
-                        <input type="checkbox" ng-model="is_projectile" ng-change="update()" /> Projectile
-                        <br />
-                        <input type="checkbox" ng-model="in_air" ng-change="updateAttackData()" /> Target in air
-                        <br />
-                        <input type="checkbox" ng-model="windbox" ng-change="updateAttackData()" /> Windbox/Flinchless
-                        <br />
-                        <input type="checkbox" name="ignoreStale" ng-model="ignoreStale" ng-change="update()" /> Ignores
-                        staleness/rage
-                        <br />
-                        <input type="checkbox" name="set_weight" ng-model="set_weight" ng-change="update()" /> Set
-                        weight
-                        <!--<br />
-                        <input type="checkbox" name="isFinishingTouch" ng-model="isFinishingTouch"
-                            ng-change="update()" /> Finishing Touch
-                            -->
+
+                    <div class="pos-right pos-attr">
+                        <table>
+                            <tr>
+                                <td>Target</td>
+                            </tr>
+                            <tr>
+                                <td>Damage taken</td>
+                                <td>
+                                    <input name="target_damage_taken" type="number" min="0" max="100" step="0.01"
+                                           ng-model="Calculator.Target.Modifier.DamageReceivedMultiplier" ng-change="Calculator.Update()" />x
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>KB received</td>
+                                <td>
+                                    <input name="target_kb_received" type="number" min="0" max="100" step="0.01"
+                                           ng-model="Calculator.Target.Modifier.KBReceivedMultiplier" ng-change="Calculator.Update()" />x
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Weight</td>
+                                <td>
+                                    <input name="target_weight" type="number" min="0" max="999" step="1"
+                                           ng-model="Calculator.Target.Attributes.Weight" ng-change="Calculator.Update()" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Gravity</td>
+                                <td>
+                                    <input name="target_gravity" type="number" min="0" max="10"
+                                           step="0.001" ng-model="Calculator.Target.Attributes.Gravity" ng-change="Calculator.Update()" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Fall speed</td>
+                                <td>
+                                    <input name="target_fall_speed" type="number" min="0" max="10"
+                                           step="0.001" ng-model="Calculator.Target.Attributes.FallSpeed" ng-change="Calculator.Update()" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>DamageFlyTop Gravity</td>
+                                <td>
+                                    <input name="target_damageflytop_gravity" type="number" min="0"
+                                           max="10" step="0.001" ng-model="Calculator.Target.Attributes.DamageFlyTopGravity" ng-change="Calculator.Update()" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>DamageFlyTop Fall speed</td>
+                                <td>
+                                    <input name="target_damageflytop_fall_speed" type="number" min="0"
+                                           max="10" step="0.001" ng-model="Calculator.Target.Attributes.DamageFlyTopFallSpeed" ng-change="Calculator.Update()" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Traction</td>
+                                <td>
+                                    <input name="target_traction" type="number" min="0" max="1"
+                                           step="0.001" ng-model="Calculator.Target.Attributes.GroundFriction" ng-change="Calculator.Update()" />
+                                </td>
+                            </tr>
+                            <tr></tr>
+                            <tr>
+                                <td>Ink</td>
+                                <td>
+                                    <input name="ink_value" type="number" min="0" max="300"
+                                           step="0.01" ng-model="Calculator.GameVariables.InkValue" ng-change="Calculator.Update()" />
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
             <!-- Attack end -->
             <!-- Modifiers -->
 
@@ -1128,15 +1073,3 @@
 
 
 </html>
-© 2022 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
