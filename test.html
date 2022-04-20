@@ -236,87 +236,93 @@
             <div id="characterAttributes" class="card-block collapse group">
                 <div class="pos-left">
                     <table>
-                        <!--<tr>
+                        <tr>
                             <td>Attacker</td>
-                        </tr>-->
+                        </tr>
+                        <tr>
+                            <td>Base Damage multiplier</td>
+                            <td>
+                                <input name="attacker_basedamage" type="number" min="0" max="100" step="0.01"
+                                       ng-model="Calculator.Attacker.Modifier.BaseDamageMultiplier" ng-change="Calculator.Update()" />x
+                            </td>
+                        </tr>
                         <tr>
                             <td>Damage dealt</td>
                             <td>
-                                x <input name="attacker_damage_dealt" type="number" min="0" max="100" step="0.01"
-                                         ng-model="attacker_damage_dealt" ng-change="updateAttr()" />
+                                <input name="attacker_damage_dealt" type="number" min="0" max="100" step="0.01"
+                                       ng-model="Calculator.Attacker.Modifier.DamageDealtMultiplier" ng-change="Calculator.Update()" />x
                             </td>
                         </tr>
                         <tr>
                             <td>KB dealt</td>
                             <td>
-                                x <input name="attacker_kb_dealt" type="number" min="0" max="100" step="0.01"
-                                         ng-model="attacker_kb_dealt" ng-change="updateAttr()" />
+                                <input name="attacker_kb_dealt" type="number" min="0" max="100" step="0.01"
+                                       ng-model="Calculator.Attacker.Modifier.KBDealtMultiplier" ng-change="Calculator.Update()" />x
                             </td>
                         </tr>
                     </table>
 
                 </div>
+
                 <div class="pos-right pos-attr">
                     <table>
-                        <!--<tr>
-        <td>Target</td>
-    </tr>-->
+                        <tr>
+                            <td>Target</td>
+                        </tr>
                         <tr>
                             <td>Damage taken</td>
                             <td>
-                                x <input name="target_damage_taken" type="number" min="0" max="100" step="0.01"
-                                         ng-model="target_damage_taken" ng-change="updateAttr()" />
+                                <input name="target_damage_taken" type="number" min="0" max="100" step="0.01"
+                                       ng-model="Calculator.Target.Modifier.DamageReceivedMultiplier" ng-change="Calculator.Update()" />x
                             </td>
                         </tr>
                         <tr>
                             <td>KB received</td>
                             <td>
-                                x <input name="target_kb_received" type="number" min="0" max="100" step="0.01"
-                                         ng-model="target_kb_received" ng-change="updateAttr()" />
+                                <input name="target_kb_received" type="number" min="0" max="100" step="0.01"
+                                       ng-model="Calculator.Target.Modifier.KBReceivedMultiplier" ng-change="Calculator.Update()" />x
                             </td>
                         </tr>
                         <tr>
                             <td>Weight</td>
                             <td>
                                 <input name="target_weight" type="number" min="0" max="999" step="1"
-                                                         ng-model="target_weight" ng-change="updateAttr()" />
+                                       ng-model="Calculator.Target.Attributes.Weight" ng-change="Calculator.Update()" />
                             </td>
                         </tr>
                         <tr>
                             <td>Gravity</td>
                             <td>
                                 <input name="target_gravity" type="number" min="0" max="10"
-                                                         step="0.001" ng-model="target_gravity" ng-change="updateAttr()" />
+                                       step="0.001" ng-model="Calculator.Target.Attributes.Gravity" ng-change="Calculator.Update()" />
                             </td>
                         </tr>
                         <tr>
                             <td>Fall speed</td>
                             <td>
                                 <input name="target_fall_speed" type="number" min="0" max="10"
-                                                         step="0.001" ng-model="target_fall_speed" ng-change="updateAttr()" />
+                                       step="0.001" ng-model="Calculator.Target.Attributes.FallSpeed" ng-change="Calculator.Update()" />
                             </td>
                         </tr>
                         <tr>
                             <td>DamageFlyTop Gravity</td>
                             <td>
                                 <input name="target_damageflytop_gravity" type="number" min="0"
-                                                         max="10" step="0.001" ng-model="target_damageflytop_gravity"
-                                                         ng-change="updateAttr()" />
+                                       max="10" step="0.001" ng-model="Calculator.Target.Attributes.DamageFlyTopGravity" ng-change="Calculator.Update()" />
                             </td>
                         </tr>
                         <tr>
                             <td>DamageFlyTop Fall speed</td>
                             <td>
                                 <input name="target_damageflytop_fall_speed" type="number" min="0"
-                                                         max="10" step="0.001" ng-model="target_damageflytop_fall_speed"
-                                                         ng-change="updateAttr()" />
+                                       max="10" step="0.001" ng-model="Calculator.Target.Attributes.DamageFlyTopFallSpeed" ng-change="Calculator.Update()" />
                             </td>
                         </tr>
                         <tr>
                             <td>Traction</td>
                             <td>
                                 <input name="target_traction" type="number" min="0" max="1"
-                                                         step="0.001" ng-model="target_traction" ng-change="updateAttr()" />
+                                       step="0.001" ng-model="Calculator.Target.Attributes.GroundFriction" ng-change="Calculator.Update()" />
                             </td>
                         </tr>
                         <tr></tr>
@@ -324,7 +330,7 @@
                             <td>Ink</td>
                             <td>
                                 <input name="ink_value" type="number" min="0" max="300"
-                                                         step="0.01" ng-model="inkValue" ng-change="updateAttr()" />
+                                       step="0.01" ng-model="Calculator.GameVariables.InkValue" ng-change="Calculator.Update()" />
                             </td>
                         </tr>
                     </table>
