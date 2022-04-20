@@ -26,6 +26,8 @@
 //var throwData = loadJSONPath('./Data/Throws/throws.json'); //Throw data from Arthur's spreadsheet https://docs.google.com/spreadsheets/d/1E3kEQUOZy1C-kSzcoOSKay5gDqpo-ZZgq-8G511Bmw4/edit#gid=1810400970
 var throwData = [];
 
+//var localMoveData = loadJSONPath('./Data/movedata.json'); //Characters with local move data in their Data/Character directory
+
 class HitboxActiveFrames {
     constructor(start, end) {
         this.start = start;
@@ -418,7 +420,7 @@ class MoveParser {
 							}
 						}
 					}
-					this.moves.push(new MoveKH(this.id, i, hitbox_name, this.name, parseFloat(d), parseFloat(a), parseFloat(b), parseFloat(k), parseFloat(wbkb), this.hitboxes, parseFloat(this.faf), parseFloat(this.landingLag), this.autoCancel, this.preDamage, this.counterMult, this.rehitRate, s, this.setweight, this.shieldstun));
+					this.moves.push(new Move(this.id, i, hitbox_name, this.name, parseFloat(d), parseFloat(a), parseFloat(b), parseFloat(k), parseFloat(wbkb), this.hitboxes, parseFloat(this.faf), parseFloat(this.landingLag), this.autoCancel, this.preDamage, this.counterMult, this.rehitRate, s, this.setweight, this.shieldstun));
                     if (ignore_hitboxes) {
                         return;
                     }
@@ -451,17 +453,17 @@ class MoveParser {
 				}
                 if (this.base_damage == "" && this.angle == "" && this.bkb == "" && this.kbg == "") {
 					if (this.grab) {
-						this.moves.push(new MoveKH(this.id, 0, this.name, this.name, NaN, NaN, NaN, NaN, NaN, this.hitboxes, parseFloat(this.faf), parseFloat(this.landingLag), this.autoCancel, this.preDamage, this.counterMult, this.rehitRate, this.shieldDamage, this.setweight, this.shieldstun));
+						this.moves.push(new Move(this.id, 0, this.name, this.name, NaN, NaN, NaN, NaN, NaN, this.hitboxes, parseFloat(this.faf), parseFloat(this.landingLag), this.autoCancel, this.preDamage, this.counterMult, this.rehitRate, this.shieldDamage, this.setweight, this.shieldstun));
                     } else {
-						this.moves.push(new MoveKH(this.id, 0, this.name, this.name, NaN, NaN, NaN, NaN, NaN, this.hitboxes, parseFloat(this.faf), parseFloat(this.landingLag), this.autoCancel, this.preDamage, this.counterMult, this.rehitRate, this.shieldDamage, this.setweight, this.shieldstun).invalidate());
+						this.moves.push(new Move(this.id, 0, this.name, this.name, NaN, NaN, NaN, NaN, NaN, this.hitboxes, parseFloat(this.faf), parseFloat(this.landingLag), this.autoCancel, this.preDamage, this.counterMult, this.rehitRate, this.shieldDamage, this.setweight, this.shieldstun).invalidate());
                     }
                 } else {
-					this.moves.push(new MoveKH(this.id, 0, this.name, this.name, parseFloat(this.base_damage), parseFloat(this.angle), parseFloat(this.bkb), parseFloat(this.kbg), parseFloat(wbkb), this.hitboxes, parseFloat(this.faf), parseFloat(this.landingLag), this.autoCancel, this.preDamage, this.counterMult, this.rehitRate, this.shieldDamage, this.setweight, this.shieldstun));
+					this.moves.push(new Move(this.id, 0, this.name, this.name, parseFloat(this.base_damage), parseFloat(this.angle), parseFloat(this.bkb), parseFloat(this.kbg), parseFloat(wbkb), this.hitboxes, parseFloat(this.faf), parseFloat(this.landingLag), this.autoCancel, this.preDamage, this.counterMult, this.rehitRate, this.shieldDamage, this.setweight, this.shieldstun));
                 }
             }
 
         } else {
-			this.moves.push(new MoveKH(this.id, 0, this.name, this.name, NaN, NaN, NaN, NaN, NaN, [new HitboxActiveFrames(NaN, NaN)], NaN, parseFloat(this.landingLag), this.autoCancel, 0, this.counterMult, this.rehitRate, this.shieldDamage, this.setweight, this.shieldstun).invalidate());
+			this.moves.push(new Move(this.id, 0, this.name, this.name, NaN, NaN, NaN, NaN, NaN, [new HitboxActiveFrames(NaN, NaN)], NaN, parseFloat(this.landingLag), this.autoCancel, 0, this.counterMult, this.rehitRate, this.shieldDamage, this.setweight, this.shieldstun).invalidate());
         }
 
 
@@ -493,7 +495,97 @@ class MoveParser {
 
 var previousMove = null;
 
-class MoveKH {
+class ChargeData{
+    constructor(names,min,max,formula){
+        this.names = names;
+        this.min = min;
+        this.max = max;
+		this.formula = formula;
+    }
+
+    static get(list, move_name){
+        for(var i=0;i<list.length;i++){
+            for(var j=0;j<list[i].names.length;j++){
+                if(move_name.includes(list[i].names[j])){
+                    return list[i];
+                }
+            }
+        }
+        return null;
+    }
+};
+
+var chargeMoves = [
+	new ChargeData(["Palutena Bow", "Palutena's Bow", "Palutena's Bow (No Charge)", "Palutena's Bow (No Charge, Aerial)"], 0, 60, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		return [3.2 + (frames * 0.09), bkb, kbg, shieldDamage];
+	}),
+	new ChargeData(["Silver Bow", "Silver Bow (No Charge)", "Silver Bow (No Charge, Aerial)"], 0, 60, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		return [5.5 + (frames * 0.1417), bkb, kbg, shieldDamage];
+	}),
+	new ChargeData(["Flare Blade (Uncharged)"], 0, 239, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		return [8 + (frames * 5 / 30), bkb, kbg, shieldDamage];
+	}),
+	new ChargeData(["Shield Breaker (No Charge)"], 0, 60, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		return [base_damage * ((60 - frames) / 60 + (frames * 2.2 / 60)), bkb, kbg, shieldDamage];
+	}),
+	new ChargeData(["Eruption"], 0, 119, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		return [10 + (frames * 4 / 30), bkb, kbg, shieldDamage];
+	}),
+	new ChargeData(["Quickdraw (Attack)"], 0, 70, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		return [base_damage + (frames * 0.1), bkb, kbg, shieldDamage];
+	}),
+	new ChargeData(["Giant Punch (Uncharged"], 0, 9, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		if (frames == 1) {
+			frames = 0;
+		}
+		return [base_damage + (2 * frames), bkb, kbg, shieldDamage];
+	}),
+	new ChargeData(["Charge Shot"], 0, 112, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		return [lerp(5, 28, frames, 112), lerp(14, 46, frames, 112), lerp(42, 50, frames, 112), lerp(-2.5, -7, frames, 112)];
+	}),
+	new ChargeData(["Charge Blast (No Charge)"], 0, 119, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		return [lerp(base_damage, 22, frames, 120), lerp(bkb, 20, frames, 120), lerp(kbg, 64, frames, 120), shieldDamage];
+	}),
+	new ChargeData(["Hero's Bow (No Charge)"], 0, 60, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		return [4 + (12 - 4) * (frames / 60), bkb, kbg, shieldDamage];
+	}),
+	new ChargeData(["Spin Attack (No Charge,"], 0, 60, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		return [base_damage * ((60 - frames) / 60 + (frames * 1.6 / 60)), bkb, kbg, shieldDamage];
+	}),
+	new ChargeData(["PK Flash (No Charge)", "PK Trash (No Charge)"], 0, 105, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		return [5 + (((frames + 15) / 120) * .32 * 100), bkb, kbg, shieldDamage];
+	}),
+	new ChargeData(["Dragon Fang Shot (Bite, No Charge)"], 0, 30, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		return [lerp(10,18,frames,30), 50, 100, 3];
+	}),
+	new ChargeData(["Dragon Fang Shot (Shot, No Charge)"], 0, 29, function (base_damage, bkb, kbg, shieldDamage, frames) {
+			return [lerp(4,9,frames, 30), lerp(20, 30, frames, 30), kbg, shieldDamage];
+	}),
+	new ChargeData(["Aura Sphere (Release from Charge)"], 0, 89, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		return [lerp(10, 25, frames, 90) * 0.69, lerp(bkb, 35, frames, 90), lerp(kbg, 69, frames, 90), lerp(shieldDamage, 3, frames, 90)];
+	}),
+	new ChargeData(["Skull Bash"], 0, 89, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		//Formula by Arthur https://twitter.com/BenArthur_7/status/917873355386183686
+		return [base_damage + ((6 / 35) * (frames + 1)), bkb, kbg, shieldDamage];
+	}),
+	new ChargeData(["Rollout (Ground, Release)", "Rollout (Aerial, Release)"], 0, 6.5, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		if (frames < 2)
+			return [7, bkb];
+		return [Math.max(Math.floor(frames * 1.5 * 3.4), 1), bkb, kbg, shieldDamage];
+	}),
+	new ChargeData(["Water Shuriken (Uncharged)"], 0, 39, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		return [lerp(3, 11, frames, 40), lerp(10, 20, frames, 40), lerp(45,85,frames,40), lerp(-1.5, -5.5, frames, 40)];
+	}),
+	new ChargeData(["Sun Salutation"], 0, 85, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		return [lerp(5, 21, frames, 85), 30, 63, lerp(-2.5, -5.3,frames, 85)];
+	}),
+	new ChargeData(["Shadow Ball"], 0, 119, function (base_damage, bkb, kbg, shieldDamage, frames) {
+		return [lerp(2.5, 25, frames, 120), lerp(bkb, 30, frames, 120), lerp(kbg, 67, frames, 120), lerp(shieldDamage, -4, frames, 120)];
+	})
+
+];
+
+class Move {
 	constructor(api_id, hitbox_no, name, moveName, base_damage, angle, bkb, kbg, wbkb, hitboxActive, faf, landingLag, autoCancel, preDamage, counterMult, rehitRate, shieldDamage, setweight, shieldstun) {
         this.api_id = api_id;
         this.id = 0;
@@ -684,7 +776,7 @@ class MoveKH {
 
 			//Throws
 			if (this.throw) {
-				var gameName = gameNames[displayNames.indexOf(this.character)];
+				var gameName = gameNames[names.indexOf(this.character)];
 				for (var i = 0; i < throwData.length - 1; i++) {
 					if (throwData[i].Character == gameName) {
 						var td = throwData[i];
@@ -745,7 +837,7 @@ class MoveKH {
 					//Has throw data
 
 					this.calculateThrowData = function (character, weight) {
-						var targetGameName = gameNames[displayNames.indexOf(character)];
+						var targetGameName = gameNames[names.indexOf(character)];
 						var result = {
 							hitFrame: 0,
 							faf: 0
@@ -861,85 +953,308 @@ class MoveKH {
 		}
 
 
-		this.ConvertToNewFormat = function (index) {
-			let move = {
-				Name: this.name,
-				Article: "",
-				Script: "",
-				Id: this.id,
-				IgnoreGrabbed: false,
-				StartFrame: this.hitboxActive.start,
-				EndFrame: this.hitboxActive.end + 1,
-				Part: 0,
-				Bone: "top",
-				Damage: this.base_damage,
-				Angle: this.angle,
-				KBG: this.kbg,
-				FKB: this.wbkb,
-				BKB: this.bkb,
-				Size: 1,
-				X: 0,
-				Y: 0,
-				Z: 0,
-				X2: 0,
-				Y2: 0,
-				Z2: 0,
-				Hitlag: 1,
-				SDI: 1,
-				ClangRebound: "ATTACK_SETOFF_KIND_ON",
-				FacingRestrict: "ATTACK_LR_CHECK_F",
-				SetWeight: this.setweight,
-				ShieldDamage: this.shieldDamage,
-				Trip: 0,
-				Rehit: this.rehitRate,
-				Reflectable: false,
-				Absorbable: false,
-				Flinchless: false,
-				DisableHitlag: false,
-				DirectIndirect: true,
-				GroundAir: "COLLISION_SITUATION_MASK_GA",
-				Hitbits: "COLLISION_CATEGORY_MASK_ALL",
-				CollisionPart: "COLLISION_PART_MASK_ALL",
-				FriendlyFire: false,
-				Effect: "collision_attr_none",
-				SFXLevel: "ATTACK_SOUND_LEVEL_S",
-				SFXType: "",
-				Type: "",
-				ShieldstunMultiplier: this.shieldstun,
-				AdditionalHitstun: 0,
-				MoveRef: {
-					NameId: this.moveName,
-					Name: {
-						EN: this.moveName,
-						JP: ""
-					},
-					IsProjectile: false,
-					IsProjectileAttached: false,
-					IsItem: false,
-					FAF: this.faf,
-					LandingLag: isNaN(this.landingLag) ? null : this.landingLag,
-					LandingLagStartFrame: null,
-					LandingLagEndFrame: null,
-					Hitboxes: [],
-					Grabs: [],
-					Throws: [],
-					Counter: null,
-					Reflector: null,
-					character: this.character,
-					ChargeData: null,
-					Type: "",
-					InputType: "attack",
-					IsSmashAttack: this.smash_attack,
-					IsAerialAttack: this.aerial,
-					maxSmashChargeMult: 1.4
-				},
-				preDamage: this.preDamage,
-				MoveName: this.name,
-				OptionClass: []
-			};
-
-			return new Move(index, move);
-		}
-
     }
 };
+
+function getMoveset(attacker, $scope) {
+    $scope.moveset = [];
+	var api_name = attacker.api_name.toLowerCase().replace("and", "").replace("&", "").split(".").join("").split(" ").join("");
+	//if (attacker.name == "Piranha Plant") {
+	//	api_name = attacker.api_name.toLowerCase();
+	//}
+
+	$scope.moveset_info = "";
+	switch (attacker.display_name) {
+		case "Dark Samus":
+			api_name = "samus";
+			$scope.moveset_info = "Using Samus moveset, ";
+			break;
+	}
+	
+
+	//KH Smash Ultimate API
+	loadAsyncFunctionJSON("https://api.kuroganehammer.com/api/characters/name/" + api_name + "?game=ultimate", function (character) {
+		if (character != null) {
+			var id = character.OwnerId;
+			loadAsyncFunctionJSON("https://api.kuroganehammer.com/api/characters/" + id + "/moves?expand=true&game=ultimate", function (moveset) {
+				if (moveset != null) {
+					var moves = [];
+					var count = 1;
+					for (var i = 0; i < moveset.length; i++) {
+						var move = moveset[i];
+						var parser = new MoveParser(move.InstanceId, move.Name, move.BaseDamage != null ? move.BaseDamage.Normal : null, move.Angle, move.BaseKnockBackSetKnockback, move.KnockbackGrowth, move.HitboxActive != null ? move.HitboxActive.Frames : null, move.FirstActionableFrame, move.LandingLag, move.AutoCancel, move.IsWeightDependent, false, move.HitboxActive, move.BaseDamage);
+						for (var c = 0; c < parser.moves.length; c++) {
+							var m = parser.moves[c];
+							m.id = count;
+							if (!m.grab && m.valid) {
+								moves.push(m.addCharacter(attacker.display_name).updateMoveData());
+								count++;
+							}
+
+
+							if (attacker.name == "Olimar" && m.name == "Dthrow") {
+								//Add Purple Pikmin Dthrow
+								var m2 = Object.assign({}, m);
+								m2.id = count;
+								m2.name = "Dthrow (Purple)";
+								m2.moveName = "Dthrow (Purple)";
+								moves.push(m2.addCharacter(attacker.name).updateMoveData());
+								count++;
+							}
+						}
+					}
+					moves.unshift(new Move(0, -1, "Not selected", 0, 0, 0, 0, false, 0, 0, 0).invalidate());
+
+					try {
+						$scope.$apply(function () {
+							if (moves.length > 1) {
+								if ($scope.attackerName != moves[1].character) {
+									//If this is a previous request ignore it and do not overwrite current move list
+									return;
+								}
+							} else {
+								//Get Smash 4 Data
+								GetSmash4Data(attacker, $scope);
+								return;
+							}
+							$scope.moveset_info = null;
+							$scope.moveset = moves;
+							$scope.detectAttack();
+
+						});
+					} catch (err) {
+						if ($scope.attackerName != moves[0].character) {
+							return;
+						}
+						$scope.moveset_info = null;
+						$scope.moveset = moves;
+						$scope.detectAttack();
+					}
+				} else {
+					$scope.moveset = [new Move(-1, -1, "Couldn't get attacks", 0, 0, 0, 0, false, 0, 0, 1).invalidate()];
+				}
+			},
+				function () {
+					//$scope.moveset = [new Move(-1, "Loading...", 0, 0, 0, 0, false, 0, 0, 1).invalidate()];
+				}, function () {
+					$scope.moveset = [new Move(-1, -1, "Couldn't get attacks", 0, 0, 0, 0, false, 0, 0, 1).invalidate()];
+				});
+		} else {
+			$scope.moveset = [new Move(-1, -1, "Couldn't access API", 0, 0, 0, 0, false, 0, 0, 1).invalidate()];
+
+			
+			
+		}
+	}, function () {
+		$scope.moveset = [new Move(-1, -1, "Loading...", 0, 0, 0, 0, false, 0, 0, 1).invalidate()];
+	}, function () {
+		//Ultimate data isn't available, use Smash 4
+		GetSmash4Data(attacker, $scope);
+	});
+	
+    
+}
+
+function GetSmash4Data(attacker, $scope) {
+	$scope.moveset = [];
+	var api_name = attacker.api_name.toLowerCase().replace("and", "").replace("&", "").split(".").join("").split(" ").join("");
+	$scope.moveset_info = "";
+	switch (attacker.display_name) {
+		case "Chrom":
+			api_name = "roy";
+			$scope.moveset_info = "Using Roy moveset, ";
+			break;
+		case "Dark Samus":
+			api_name = "samus";
+			$scope.moveset_info = "Using Samus moveset, ";
+			break;
+	}
+	loadAsyncFunctionJSON("https://api.kuroganehammer.com/api/characters/name/" + api_name, function (character) {
+		if (character != null) {
+			var id = character.OwnerId;
+			loadAsyncFunctionJSON("https://api.kuroganehammer.com/api/characters/" + id + "/moves", function (moveset) {
+				if (moveset != null) {
+					var moves = [];
+					var count = 1;
+					for (var i = 0; i < moveset.length; i++) {
+						var move = moveset[i];
+						var parser = new MoveParser(move.InstanceId, move.Name, move.BaseDamage, move.Angle, move.BaseKnockBackSetKnockback, move.KnockbackGrowth, move.HitboxActive, move.FirstActionableFrame, move.LandingLag, move.AutoCancel, move.IsWeightDependent, false);
+						for (var c = 0; c < parser.moves.length; c++) {
+							var m = parser.moves[c];
+							m.id = count;
+							if (!m.grab && m.valid) {
+								moves.push(m.addCharacter(attacker.display_name).updateMoveData());
+								count++;
+							}
+
+
+							if (attacker.name == "Olimar" && m.name == "Dthrow") {
+								//Add Purple Pikmin Dthrow
+								var m2 = Object.assign({}, m);
+								m2.id = count;
+								m2.name = "Dthrow (Purple)";
+								m2.moveName = "Dthrow (Purple)";
+								moves.push(m2.addCharacter(attacker.name).updateMoveData());
+								count++;
+							}
+						}
+					}
+					moves.unshift(new Move(0, -1, "Not selected", 0, 0, 0, 0, false, 0, 0, 0).invalidate());
+
+					try {
+						$scope.$apply(function () {
+							if (moves.length > 1) {
+								if ($scope.attackerName != moves[1].character) {
+									//If this is a previous request ignore it and do not overwrite current move list
+									return;
+								}
+								$scope.moveset_info += "Smash 4 move data, check scripts for Ultimate data";
+								$scope.moveset = moves;
+								$scope.detectAttack();
+							} else {
+								$scope.moveset_info = "";
+								$scope.moveset = [new Move(0, -1, "Character data not available", 0, 0, 0, 0, false, 0, 0, 0).invalidate()];
+								$scope.detectAttack();
+							}
+
+						});
+					} catch (err) {
+						if ($scope.attackerName != moves[0].character) {
+							return;
+						}
+						$scope.moveset_info += "Smash 4 move data, check scripts for Ultimate data";
+						$scope.moveset = moves;
+						$scope.detectAttack();
+					}
+				} else {
+					$scope.moveset = [new Move(-1, -1, "Couldn't get attacks", 0, 0, 0, 0, false, 0, 0, 1).invalidate()];
+				}
+			},
+				function () {
+					//$scope.moveset = [new Move(-1, "Loading...", 0, 0, 0, 0, false, 0, 0, 1).invalidate()];
+				}, function () {
+					$scope.moveset = [new Move(-1, -1, "Couldn't get attacks", 0, 0, 0, 0, false, 0, 0, 1).invalidate()];
+				});
+		} else {
+			$scope.moveset = [new Move(-1, -1, "Couldn't access API", 0, 0, 0, 0, false, 0, 0, 1).invalidate()];
+		}
+	}, function () {
+		$scope.moveset = [new Move(-1, -1, "Loading...", 0, 0, 0, 0, false, 0, 0, 1).invalidate()];
+	}, function () {
+		$scope.moveset = [new Move(-1, -1, "Character data not available", 0, 0, 0, 0, false, 0, 0, 1).invalidate()];
+	});
+}
+
+function getUltimateCharactersId(names, $scope) {
+	$scope.charactersId = [];
+	loadAsyncFunctionJSON("https://api.kuroganehammer.com/api/characters?game=ultimate", function (character) {
+		if (character != null) {
+			var characters = [];
+			for (var i = 0; i < character.length; i++) {
+				var id = character[i].OwnerId;
+				var name = character[i].Name;
+				var color = character[i].ColorTheme;
+				for (var n = 0; n < names.length; n++) {
+					var api_name = names[n].toLowerCase().replace("&", "").replace("and", "").split(".").join("").split(" ").join("");
+					if (name.toLowerCase() == api_name) {
+						name = names[n];
+						name = name.replace(/\&/gi, "and");
+						characters.push(new CharacterId(name, id, color));
+						break;
+					}
+
+				}
+			}
+			try {
+				$scope.$apply(function () {
+					$scope.charactersId = characters;
+					$scope.ready();
+				});
+			} catch (err) {
+				$scope.charactersId = characters;
+				$scope.ready();
+			}
+
+		}
+	}, null, function () {
+		$scope.status = "Couldn't access API";
+		$scope.ready(true);
+	});
+}
+
+function getCharactersId(names, $scope) {
+    $scope.charactersId = [];
+	loadAsyncFunctionJSON("https://api.kuroganehammer.com/api/characters", function (character) {
+        if (character != null) {
+            var characters = [];
+            for (var i = 0; i < character.length; i++) {
+                var id = character[i].OwnerId;
+                var name = character[i].Name;
+                var color = character[i].ColorTheme;
+				for (var n = 0; n < names.length; n++) {
+					var api_name = names[n].toLowerCase().replace("&","").replace("and", "").split(".").join("").split(" ").join("");
+                    if (name.toLowerCase() == api_name) {
+                        name = names[n];
+                        name = name.replace(/\&/gi,"and");
+                        characters.push(new CharacterId(name, id, color));
+                        break;
+					}
+					
+                }
+            }
+            try {
+                $scope.$apply(function () {
+                    $scope.charactersId = characters;
+                    $scope.ready();
+                });
+            } catch (err) {
+                $scope.charactersId = characters;
+                $scope.ready();
+            }
+            
+        }
+    }, null, function () {
+        $scope.status = "Couldn't access API";
+        $scope.ready(true);
+    });
+}
+
+function getAllMoves($scope) {
+    $scope.moves = [];
+	loadAsyncFunctionJSON("https://api.kuroganehammer.com/api/moves", function (moveset) {
+        if (moveset != null) {
+            var moves = [];
+            var count = 0;
+            try{
+                $scope.$apply(function () { $scope.status = "Parsing moves..."; });
+            } catch (err) {
+                $scope.status = "Parsing moves...";
+			}
+
+            for (var i = 0; i < moveset.length; i++) {
+                var move = moveset[i];
+                var parser = new MoveParser(move.InstanceId, move.Name, move.BaseDamage, move.Angle, move.BaseKnockBackSetKnockback, move.KnockbackGrowth, move.HitboxActive, move.FirstActionableFrame, move.LandingLag, move.AutoCancel, move.IsWeightDependent, false);
+                for (var c = 0; c < parser.moves.length; c++) {
+					var m = parser.moves[c];
+					var characterName = $scope.charactersId[move.OwnerId - 1].name;
+					m.characterData = $scope.charactersId[move.OwnerId - 1];
+					m.id = count;
+					moves.push(m.addCharacter(characterName).updateMoveData());
+                    count++;
+                }
+            }
+            try {
+                $scope.$apply(function () {
+                    $scope.moves = moves;
+                    $scope.ready();
+                });
+            } catch (err) {
+                $scope.moves = moves;
+                $scope.ready();
+            }
+        }
+    }, null, function () {
+        $scope.status = "Couldn't access API";
+        $scope.ready(true);
+    });
+}
