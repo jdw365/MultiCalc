@@ -1,4 +1,4 @@
-﻿var headers = ["type", "attacker", "attacker_modifier", "attacker_name", "target", "target_modifier", "target_name", "attacker_percent", "rage", "target_percent",
+var headers = ["type", "attacker", "attacker_modifier", "attacker_name", "target", "target_modifier", "target_name", "attacker_percent", "rage", "target_percent",
 	"move", "move_base_damage", "charge_frames", "base_damage", "damage", "ignore_staleness", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "staleness_multiplier", "aura", "stock_difference", "angle", "bkb", "fkb", "kbg",
 	"kb_modifier", "kb_multiplier", "kb", "di_lsi_angle", "launch_angle", "hitstun", "tumble", "can_jab_lock", "lsi_multiplier", "horizontal_launch_speed", "vertical_launch_speed",
 	"horizontal_distance", "vertical_distance", "KO"];
@@ -1020,8 +1020,7 @@ app.controller('calculator', function ($scope) {
     var hit_frame;
 
     $scope.generate = function(){
-		console.log("generate");
-	    
+
 		$scope.update();
 
 		$scope.ko_table = [];
