@@ -1020,7 +1020,8 @@ app.controller('calculator', function ($scope) {
     var hit_frame;
 
     $scope.generate = function(){
-
+		console.log("generate");
+	    
 		$scope.update();
 
 		$scope.ko_table = [];
